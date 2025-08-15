@@ -1,0 +1,838 @@
+openapi: 3.1.0
+info:
+  title: Card Service API
+  version: 1.0.0
+  description: REST API для банковских операций.
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /auth/sign-up/:
+    post:
+      summary: Регистрация нового пользователя
+      description: Создает нового пользователя и сохраняет его в базе данных.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: user_name
+                password:
+                  type: string
+                  example: pwd12345
+      responses:
+        '200':
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'  
+        '409':
+          description: Пользователь с таким именем уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /auth/sign-in/:
+    post:
+      summary: Авторизация пользователя
+      description: Проводит авторизацию пользователя и возвращает jw токен
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: user_name
+                password:
+                  type: string
+                  example: pwd12345
+      responses:
+        '200':
+          description: Пользователь авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Bad credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+
+  /admin/cards/q=:
+    get:
+      summary: Получить карту по ID
+      description: Возвращает dto (версия для администратора) карты
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: query
+          description: ID карты
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Dto карты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardAdminDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/all/:
+    get:
+      summary: Получить все карты спискоком
+      description: Возвращает список dto (версия для администратора) карт
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: size
+          in: query
+          description: Размер страницы
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Список Dto карт
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardAdminDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+    
+  /admin/cards/all/q=:
+    get:
+      summary: Получить все карты пользователя
+      description: Возвращает страницу карт пользователя (админская версия)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          description: ID пользователя
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Страница карт
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardAdminDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Пользователя не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/create/q=:
+    post:
+      summary: Создать карту
+      description: Создает карту для указанного пользователя
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          description: ID пользователя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Созданная карта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Пользователя не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/activate/q=:
+    patch:
+      summary: Активировать карту
+      description: Активирует карту по ID
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: query
+          description: ID карты
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Карта после активации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/block/q=:
+    patch:
+      summary: Заблокировать карту
+      description: Блокирует карту по ID запроса на блокировку
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: query
+          description: ID запроса на блокировку
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Карта после блокировки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/delete/q=:
+    delete:
+      summary: Удалить карту
+      description: Удаляет карту по ID
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: query
+          description: ID карты
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Карта успешно удалена
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/requests/q=:
+    get:
+      summary: Получить запрос на блокировку карты
+      description: Возвращает запрос на блокировку по ID
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: query
+          description: ID запроса
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Запрос на блокировку
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardBlockRequest'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Запроса не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/cards/requests/all/:
+    get:
+      summary: Получить все запросы на блокировку
+      description: Возвращает список всех запросов на блокировку
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список запросов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardBlockRequest'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+
+  /admin/users/q=:
+    get:
+      summary: Получить пользователя
+      description: Возвращает данные пользователя (админская версия)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          description: ID пользователя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Данные пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAdminDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Пользователя не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /admin/users/all:
+    get:
+      summary: Получить всех пользователей
+      description: Возвращает страницу пользователей (админская версия)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Страница пользователей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserAdminDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+
+  /admin/users/delete/q=:
+    delete:
+      summary: Удалить пользователя
+      description: Удаляет пользователя по ID
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          description: ID пользователя
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Пользователь успешно удалён
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Пользователя не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /cards/view/q=:
+    get:
+      summary: Просмотр карты пользователя
+      description: Возвращает данные карты по ID
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: query
+          description: ID карты
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Данные карты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /cards/view/all/:
+    get:
+      summary: Просмотр всех карт пользователя
+      description: Возвращает страницу карт текущего пользователя
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Страница карт
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+
+  /cards/block/q=:
+    post:
+      summary: Запрос на блокировку карты
+      description: Отправляет запрос на блокировку карты текущим пользователем
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: query
+          description: ID карты
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Запрос на блокировку карты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardBlockRequest'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '404':
+          description: Карты не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+  /transfers/transfer:
+    post:
+      summary: Запрос перевод денег
+      description: Отправляет запрос на перевод денег с карты на карту
+      tags:
+        - Transfers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fromCardId:
+                    type: integer
+                    example: 1
+                  toCardId:
+                    type: integer
+                    example: 2
+                  amount:
+                    type: number
+                    example: 100.00
+      responses:
+        '200':
+          description: Dto перевода
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferDto'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityResponse'
+        '409':
+          description: Операция с заблокированной картой
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '422':
+          description: Недостаточно средств
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+  schemas:
+    SecurityResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: "Unauthorized"
+        message:
+          type: string
+          example: "Full authentication is required to access this resource"
+        path:
+          type: string
+          example: "/auth/sign-up"
+
+    ExceptionResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "Exception message"
+        details:
+          type: string
+          example: "Exception details"
+        path:
+          type: string
+          example: "/auth/sign-up"
+        timestamp:
+          type: date-time
+          example: "2023-01-01T00:00:00.000+00:00"
+
+    AuthResponse:
+      type: object
+      properties:
+        jwt:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userName:
+          type: string
+          example: user_name
+        role:
+          type: string
+          example: USER
+
+    UserAdminDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userName:
+          type: string
+          example: user_name
+        role:
+          type: string
+          example: USER
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardDto'
+    
+    CardDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        maskedNumber:
+          type: string
+          example: "**** **** **** 1234"
+        cardStatus:
+          type: string
+          example: ACTIVE
+        balance:
+          type: number
+          example: 10000.00
+
+    TransferDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        fromCardId:
+          $ref: '#/components/schemas/CardTransferDto'
+        toCardId:
+          $ref: '#/components/schemas/CardTransferDto'
+        amount:
+          type: number
+          example: 100
+        operationDate:
+          type: date-time
+          example: "2023-01-01T00:00:00.000+00:00"
+
+    CardTransferDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        maskedNumber:
+          type: string
+          example: "**** **** **** 1234"
+
+    CardAdminDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        maskedNumber:
+          type: string
+          example: "**** **** **** 1234"
+        cardStatus:
+          type: string
+          example: ACTIVE
+        balance:
+          type: number
+          example: 10000.00
+        owner:
+          $ref: '#/components/schemas/UserDto'
+
+    CardBlockRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        cardId:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        createdAt:
+          type: date-time
+          example: "2023-01-01T00:00:00.000+00:00"
+        status:
+          type: string
+          example: PENDING

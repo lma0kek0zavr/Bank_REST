@@ -1,0 +1,40 @@
+services:
+    postgres:
+        image: postgres:17
+        volumes:
+            - bank_data:/var/lib/postgresql/data
+        container_name: postgres
+        environment:
+            POSTGRES_DB: bank_rest
+            POSTGRES_USER: ${POSTGRES_ROOT_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_ROOT_PWD}
+        ports:
+            - "5432:5432"
+        networks:
+            - bank-rest
+
+    app:
+        build: .
+        container_name: spring-app
+        environment:
+            SPRING_APPLICATION_NAME: DataHouse
+
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bank_rest
+            SPRING_DATASOURCE_USERNAME: ${POSTGRES_ROOT_USER}
+            SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PWD}
+
+            SECURITY_JWT_SECRET: ${JWT_SECRET}
+            SECURITY_CARD_SECRET: ${CARD_SECRET}
+        depends_on:
+            - postgres
+        ports:
+            - "8080:8080"
+        networks:
+            - bank-rest
+
+volumes:
+    bank_data_data:
+
+networks:
+  bank-rest:
+    driver: bridge
