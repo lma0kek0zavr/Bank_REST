@@ -3,7 +3,7 @@ services:
         image: postgres:17
         volumes:
             - bank_data:/var/lib/postgresql/data
-        container_name: postgres
+        container_name: bank_db
         environment:
             POSTGRES_DB: bank_rest
             POSTGRES_USER: ${POSTGRES_ROOT_USER}
@@ -15,10 +15,8 @@ services:
 
     app:
         build: .
-        container_name: spring-app
+        container_name: bank_app
         environment:
-            SPRING_APPLICATION_NAME: DataHouse
-
             SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bank_rest
             SPRING_DATASOURCE_USERNAME: ${POSTGRES_ROOT_USER}
             SPRING_DATASOURCE_PASSWORD: ${POSTGRES_ROOT_PWD}
@@ -33,7 +31,7 @@ services:
             - bank-rest
 
 volumes:
-    bank_data_data:
+    bank_data:
 
 networks:
   bank-rest:
