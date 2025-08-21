@@ -7,6 +7,7 @@ import com.example.Bank_REST.dto.TransferDto;
 import com.example.Bank_REST.service.application.TransferService;
 import com.example.Bank_REST.util.request.TransferRequest;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,8 @@ public class TransferController {
     
     private final TransferService transferService;
 
-    @PostMapping("/transfer")
-    public ResponseEntity<TransferDto> processTransfer(@RequestBody TransferRequest transferRequest) {
+    @PostMapping
+    public ResponseEntity<TransferDto> processTransfer(@RequestBody @Valid TransferRequest transferRequest) {
         return ResponseEntity.ok(
             transferService.transfer(transferRequest)
         );

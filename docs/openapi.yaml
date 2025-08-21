@@ -7,7 +7,7 @@ servers:
   - url: http://localhost:8080
     description: Local server
 paths:
-  /auth/sign-up/:
+  /auth/sign-up:
     post:
       summary: Регистрация нового пользователя
       description: Создает нового пользователя и сохраняет его в базе данных.
@@ -39,8 +39,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /auth/sign-in/:
+  /auth/sign-in:
     post:
       summary: Авторизация пользователя
       description: Проводит авторизацию пользователя и возвращает jw токен
@@ -72,8 +78,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecurityResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/q=:
+  /admin/{cardId}:
     get:
       summary: Получить карту по ID
       description: Возвращает dto (версия для администратора) карты
@@ -83,7 +95,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: cardId
-          in: query
+          in: path
           description: ID карты
           required: true
           schema:
@@ -108,8 +120,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/all/:
+  /admin/cards/:
     get:
       summary: Получить все карты спискоком
       description: Возвращает список dto (версия для администратора) карт
@@ -147,8 +165,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecurityResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
     
-  /admin/cards/all/q=:
+  /admin/user/{userId}:
     get:
       summary: Получить все карты пользователя
       description: Возвращает страницу карт пользователя (админская версия)
@@ -158,7 +182,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: userId
-          in: query
+          in: path
           description: ID пользователя
           required: true
           schema:
@@ -202,8 +226,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/create/q=:
+  /admin/user/{userId}:
     post:
       summary: Создать карту
       description: Создает карту для указанного пользователя
@@ -213,7 +243,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: userId
-          in: query
+          in: path
           description: ID пользователя
           required: true
           schema:
@@ -238,8 +268,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/activate/q=:
+  /admin/{cardId}/activate:
     patch:
       summary: Активировать карту
       description: Активирует карту по ID
@@ -249,7 +285,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: cardId
-          in: query
+          in: path
           description: ID карты
           required: true
           schema:
@@ -274,8 +310,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/block/q=:
+  /admin/block-requests/{requestId}/block:
     patch:
       summary: Заблокировать карту
       description: Блокирует карту по ID запроса на блокировку
@@ -285,7 +327,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: requestId
-          in: query
+          in: path
           description: ID запроса на блокировку
           required: true
           schema:
@@ -310,8 +352,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/delete/q=:
+  /admin/{cardId}:
     delete:
       summary: Удалить карту
       description: Удаляет карту по ID
@@ -321,7 +369,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: cardId
-          in: query
+          in: path
           description: ID карты
           required: true
           schema:
@@ -342,8 +390,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/requests/q=:
+  /admin/block-requests/{requestId}:
     get:
       summary: Получить запрос на блокировку карты
       description: Возвращает запрос на блокировку по ID
@@ -353,7 +407,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: requestId
-          in: query
+          in: path
           description: ID запроса
           required: true
           schema:
@@ -378,8 +432,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/cards/requests/all/:
+  /admin/block-requests:
     get:
       summary: Получить все запросы на блокировку
       description: Возвращает список всех запросов на блокировку
@@ -403,7 +463,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecurityResponse'
 
-  /admin/users/q=:
+  /admin/{userId}:
     get:
       summary: Получить пользователя
       description: Возвращает данные пользователя (админская версия)
@@ -413,7 +473,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: userId
-          in: query
+          in: path
           description: ID пользователя
           required: true
           schema:
@@ -438,8 +498,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/users/all:
+  /admin/users:
     get:
       summary: Получить всех пользователей
       description: Возвращает страницу пользователей (админская версия)
@@ -480,8 +546,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecurityResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /admin/users/delete/q=:
+  /admin/users/{userId}:
     delete:
       summary: Удалить пользователя
       description: Удаляет пользователя по ID
@@ -491,7 +563,7 @@ paths:
         - bearerAuth: []
       parameters:
         - name: userId
-          in: query
+          in: path
           description: ID пользователя
           required: true
           schema:
@@ -512,18 +584,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /cards/view/q=:
+  /cards/{cardId}:
     get:
       summary: Просмотр карты пользователя
       description: Возвращает данные карты по ID
       tags:
-        - User
+        - Cards
       security:
         - bearerAuth: []
       parameters:
         - name: cardId
-          in: query
+          in: path
           description: ID карты
           required: true
           schema:
@@ -548,13 +626,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /cards/view/all/:
+  /cards:
     get:
       summary: Просмотр всех карт пользователя
       description: Возвращает страницу карт текущего пользователя
       tags:
-        - User
+        - Cards
       security:
         - bearerAuth: []
       parameters:
@@ -590,18 +674,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecurityResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /cards/block/q=:
+  /cards/{cardId}/block-request:
     post:
       summary: Запрос на блокировку карты
       description: Отправляет запрос на блокировку карты текущим пользователем
       tags:
-        - User
+        - Cards
       security:
         - bearerAuth: []
       parameters:
         - name: cardId
-          in: query
+          in: path
           description: ID карты
           required: true
           schema:
@@ -626,8 +716,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
 
-  /transfers/transfer:
+  /transfers:
     post:
       summary: Запрос перевод денег
       description: Отправляет запрос на перевод денег с карты на карту
@@ -672,6 +768,12 @@ paths:
                 $ref: '#/components/schemas/ExceptionResponse'
         '422':
           description: Недостаточно средств
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponse'
+        '400':
+          description: Ошибка валидации данных
           content:
             application/json:
               schema:

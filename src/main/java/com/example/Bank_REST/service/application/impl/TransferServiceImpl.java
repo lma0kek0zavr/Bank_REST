@@ -4,11 +4,12 @@ import java.math.BigDecimal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.Bank_REST.dto.TransferDto;
 import com.example.Bank_REST.entity.Card;
 import com.example.Bank_REST.entity.Transfer;
+import com.example.Bank_REST.exception.CardOperationException;
 import com.example.Bank_REST.mapper.TransferMapper;
 import com.example.Bank_REST.repository.TransferRepository;
 import com.example.Bank_REST.service.application.CardService;
@@ -19,6 +20,11 @@ import com.example.Bank_REST.util.request.TransferRequest;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * An implementation of the {@link TransferService} interface, responsible for handling money transfers between cards.
+ * 
+ * This service provides methods for transferring funds from one card to another, while ensuring that the transfer is valid and secure.
+ */
 @Service
 @RequiredArgsConstructor
 public class TransferServiceImpl implements TransferService {
@@ -31,7 +37,17 @@ public class TransferServiceImpl implements TransferService {
 
     private final CardService cardService;
     
+    /**
+     * Transfers a specified amount from one card to another.
+     *
+     * Checks if the cards are blocked or if there is enough money on the fromCard.
+     * If the transfer is valid, it updates the balances of both cards and creates a new transfer record.
+     *
+     * @param transferRequest the request containing the transfer details
+     * @return the created transfer record
+     */
     @Override
+    @Transactional
     public TransferDto transfer(TransferRequest transferRequest) {
         Long fromCardId = transferRequest.getFromCardId();
         Long toCardId = transferRequest.getToCardId();
@@ -42,11 +58,11 @@ public class TransferServiceImpl implements TransferService {
         
         if (fromCard.getStatus() == CardStatus.BLOCKED 
             || toCard.getStatus() == CardStatus.BLOCKED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Card is blocked");
+            throw new CardOperationException(HttpStatus.CONFLICT, "Card is blocked");
         }
         
         if (fromCard.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Not enough money");
+            throw new CardOperationException(HttpStatus.UNPROCESSABLE_ENTITY, "Not enough money");
         }
         
         BigDecimal fromCardBalance = fromCard.getBalance();

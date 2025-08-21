@@ -33,3 +33,5 @@ security:
     secrete: ${SECURITY_JWT_SECRET}
   card:
     secrete: ${SECURITY_CARD_SECRET}
+  token:
+    lifetime: ${SECURITY_TOKEN_LIFETIME}

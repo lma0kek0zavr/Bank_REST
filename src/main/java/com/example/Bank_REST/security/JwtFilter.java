@@ -15,6 +15,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * A custom implementation of the {@link OncePerRequestFilter} class, 
+ * responsible for authenticating and authorizing incoming HTTP requests using JSON Web Tokens (JWT).
+ * 
+ * This filter checks for the presence of a valid JWT token in the Authorization header, 
+ * and uses it to authenticate and authorize the request.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {

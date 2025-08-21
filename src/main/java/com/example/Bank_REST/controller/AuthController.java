@@ -11,6 +11,7 @@ import com.example.Bank_REST.service.application.UserService;
 import com.example.Bank_REST.util.request.AuthRequest;
 import com.example.Bank_REST.util.response.AuthResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,13 +23,13 @@ public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/sign-up/")
-    public UserDto singUp(@RequestBody AuthRequest req) {
+    @PostMapping("/sign-up")
+    public UserDto singUp(@RequestBody @Valid AuthRequest req) {
         return userService.register(req.getUserName(), req.getPassword());
     }
 
-    @PostMapping("/sign-in/")
-    public AuthResponse singIn(@RequestBody AuthRequest req) {
+    @PostMapping("/sign-in")
+    public AuthResponse singIn(@RequestBody @Valid AuthRequest req) {
         String token = authService.authenticate(req.getUserName(), req.getPassword());
         
         return new AuthResponse(token);

@@ -1,13 +1,20 @@
 package com.example.Bank_REST.controller;
 
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.Bank_REST.exception.CardNotFoundException;
+import com.example.Bank_REST.exception.CardOperationException;
 import com.example.Bank_REST.exception.ExceptionResponse;
+import com.example.Bank_REST.exception.UserNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ExceptionController {
@@ -22,6 +29,104 @@ public class ExceptionController {
                 e.getStatusCode().value(),
                 e.getReason(),
                 e.getMessage(),
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleUserNotFoundException(
+        UserNotFoundException e,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                404,
+                "User not found",
+                e.getMessage(),
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleCardNotFoundException(
+        UserNotFoundException e,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                404,
+                "Card not found",
+                e.getMessage(),
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(CardOperationException.class)
+    public ResponseEntity<ExceptionResponse> handleCardOperationException(
+        CardOperationException e,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                e.getStatusCode().value(),
+                e.getReason(),
+                e.getMessage(),
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleServerException(
+        Exception e,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                500,
+                "Internal server error",
+                e.getMessage(),
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleValidationError(
+        MethodArgumentNotValidException e,
+        HttpServletRequest request
+    ) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+            .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+            .collect(Collectors.joining(", "));
+
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                400,
+                "Validation error",
+                message,
+                request.getRequestURI()
+            )
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionResponse> handleConstraintViolation(
+        ConstraintViolationException e,
+        HttpServletRequest request
+    ) {
+        String message = e.getConstraintViolations().stream()
+            .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+            .collect(Collectors.joining(", "));
+
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponse(
+                400,
+                "Constraint violation",
+                message,
                 request.getRequestURI()
             )
         );

@@ -13,6 +13,11 @@ import com.example.Bank_REST.service.domain.UserDomainService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * A custom implementation of the {@link UserDetailsService} interface, responsible for loading user details by username.
+ * 
+ * This service is used by the Spring Security framework to authenticate users and load their corresponding user details.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {

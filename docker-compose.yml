@@ -23,6 +23,7 @@ services:
 
             SECURITY_JWT_SECRET: ${JWT_SECRET}
             SECURITY_CARD_SECRET: ${CARD_SECRET}
+            SECURITY_TOKEN_LIFETIME: ${TOKEN_LIFETIME}
         depends_on:
             - postgres
         ports:
